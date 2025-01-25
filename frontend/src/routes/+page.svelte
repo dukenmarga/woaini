@@ -2,59 +2,16 @@
 	import AppSidebar from '$lib/elements/app-sidebar.svelte';
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import { Textarea } from '$lib/components/ui/textarea/index.js';
 
-	let input: HTMLDivElement;
+	let input: HTMLTextAreaElement = document.createElement('textarea');
 	let history: HTMLDivElement;
 
-	// Focus on textarea if the div area is clicked
-	function focusToEnd() {
-		if (input) {
-			const range = document.createRange();
-			const selection = window.getSelection();
-
-			// Move the cursor to the end of the content
-			range.selectNodeContents(input);
-			range.collapse(false); // Collapses the range to the end
-
-			// Apply the selection to move the cursor
-			if (selection !== null) {
-				selection.removeAllRanges();
-				selection.addRange(range);
-			}
-
-			// Focus on the contenteditable
-			input.focus();
-		}
-	}
-
-	// Handle enter key
-	function handleKeydown(event: KeyboardEvent) {
-		if (event.key === 'Enter') {
-			// Prevents a new line in textarea
-			event.preventDefault();
-
-			// get text from textarea
-			const prevInputChat = input.textContent;
-
-			if (prevInputChat && prevInputChat.trim() === '') {
-				return;
-			}
-
-			// clear textarea
-			input.textContent = '';
-
-			// create new div before the textarea
-			const histLine = document.createElement('div');
-			histLine.innerHTML = `
-                <div class="grid grid-cols-6 pb-4">
-					<div class="col-span-5 col-start-2 rounded-xl bg-gray-100 p-4">
-                        ${prevInputChat}
-                    </div>
-                </div>
-			`;
-
-			// add new div before the textarea
-			history.appendChild(histLine);
+	// resize textarea
+	function resize() {
+		if (input && input.style) {
+			input.style.height = 'auto';
+			input.style.height = input.scrollHeight + 'px';
 		}
 	}
 </script>
@@ -86,19 +43,15 @@
 			</div>
 		</div>
 		<div id="input" class="grid grid-cols-12 p-4">
-			<!-- svelte-ignore a11y_no_static_element_interactions -->
-			<!-- svelte-ignore a11y_click_events_have_key_events -->
-			<div class="col-span-8 col-start-3 rounded-xl bg-gray-100 p-4" onclick={focusToEnd}>
-				<!-- <Textarea placeholder="Message ..." class="resize-none" /> -->
+			<div class="col-span-8 col-start-3 rounded-xl bg-gray-100 p-4">
 				<div class="">
-					<div
-						id="chat-input"
-						class="outline-none"
-						contenteditable="true"
-						data-virtualkeyboard="true"
-						bind:this={input}
-						onkeydown={handleKeydown}
-					></div>
+					<Textarea
+						placeholder="Message ..."
+						class="resize-none border-none"
+						style="height: 50px;"
+						bind:ref={input}
+						oninput={resize}
+					/>
 					<div class="icon"></div>
 				</div>
 			</div>
